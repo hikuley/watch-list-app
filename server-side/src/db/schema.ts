@@ -1,4 +1,4 @@
-import {pgTable, serial, varchar, text, integer, timestamp} from 'drizzle-orm/pg-core';
+import {pgTable, serial, varchar, text, integer, timestamp, decimal} from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -17,7 +17,7 @@ export const movies = pgTable('movies', {
     description: text('description'),
     releaseYear: integer('release_year'),
     duration: integer('duration'),
-    rating: integer('rating').default(0),
+    rating: integer('rating'),
     genre: varchar('genre', {length: 50}),
     director: varchar('director', {length: 100}),
     createdAt: timestamp('created_at').defaultNow(),
