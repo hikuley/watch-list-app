@@ -1,6 +1,5 @@
 import {pgTable, serial, varchar, text, integer, timestamp} from 'drizzle-orm/pg-core';
 
-
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: varchar({length: 255}).notNull(),
