@@ -29,7 +29,8 @@ export class MoviesService {
     }
 
     async findAll(): Promise<Movie[]> {
-        return await this.db.select().from(movies);
+        const fromDb = await this.db.select().from(movies);
+        return fromDb;
     }
 
     async findOne(id: number): Promise<Movie> {
