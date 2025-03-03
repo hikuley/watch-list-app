@@ -46,12 +46,20 @@ export class MoviesService {
     async update(id: number, updateMovieDto: UpdateMovieDto): Promise<Movie> {
         await this.findOne(id);
 
+        const updateData = {
+            title: updateMovieDto.title,
+            description: updateMovieDto.description,
+            releaseYear: updateMovieDto.releaseYear,
+            duration: updateMovieDto.duration,
+            rating: updateMovieDto.rating,
+            genre: updateMovieDto.genre,
+            director: updateMovieDto.director,
+            updatedAt: new Date()
+        };
+
         const [updatedMovie] = await this.db
             .update(movies)
-            .set({
-                ...updateMovieDto,
-                updatedAt: new Date()
-            })
+            .set(updateData)
             .where(eq(movies.id, id))
             .returning();
 
