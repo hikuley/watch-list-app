@@ -23,12 +23,12 @@ Before starting the server, integrate the database by running:
 cd server-side && npm run database-integrate
 ```
 
-Run server-side:
+## Running the Server
 ```bash
 cd server-side && npm run start
 ```
 
-Run ui-side:
+## Running the UI
 ```bash
 cd server-ui && npm run dev
 ```
