@@ -32,7 +32,7 @@ export class MoviesController {
     }
 
     @Get(':id')
-    @CacheKey('movie_by_id')
+    @CacheKey('movie_by_id_:id')
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get a movie by id'})
     @ApiResponse({status: 200, description: 'Return the movie.', type: Movie})

@@ -15,33 +15,46 @@ export class CacheInterceptor implements NestInterceptor {
 
     async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
         const request = context.switchToHttp().getRequest();
-        if (request.method !== 'GET') {
-            await this.clearCache(request.path);
+        const isGetRequest = request.method === 'GET';
+        const handler = context.getHandler();
+
+        const cacheKey = this.reflector.get(CACHE_KEY_METADATA, handler) || request.url;
+        const ttl = this.reflector.get(CACHE_TTL_METADATA, handler) || 3600;
+
+        if (!isGetRequest) {
+            // For POST, PATCH, DELETE: invalidate related caches
+            await this.invalidateCache();
             return next.handle();
         }
 
-        const key = this.reflector.get(CACHE_KEY_METADATA, context.getHandler()) || request.url;
-        const ttl = this.reflector.get(CACHE_TTL_METADATA, context.getHandler()) || 3600;
-
-        const cachedData = await this.cacheManager.get(key);
+        // For GET requests: try to get from cache
+        const cachedData = await this.cacheManager.get(cacheKey);
         if (cachedData) {
             return of(cachedData);
         }
 
+        // If not in cache, get from source and cache it
         return next.handle().pipe(
             tap(async (data: any) => {
-                await this.cacheManager.set(key, data, ttl * 1000);
+                await this.cacheManager.set(cacheKey, data, ttl * 1000);
             }),
         );
     }
 
-    private async clearCache(path: string): Promise<void> {
-        // Access Redis client directly for keys operation
+    private async invalidateCache(): Promise<void> {
         const redisCache = this.cacheManager as any;
         if (redisCache.store.client) {
-            const keys = await redisCache.store.client.keys(`${path}*`);
-            if (keys.length > 0) {
-                await Promise.all(keys.map(key => this.cacheManager.del(key)));
+            try {
+                // Clear all movies-related caches
+                const keys = await redisCache.store.client.keys('*movies*');
+                if (keys.length > 0) {
+                    await Promise.all([
+                        this.cacheManager.del('all_movies'),
+                        ...keys.map(key => this.cacheManager.del(key))
+                    ]);
+                }
+            } catch (error) {
+                console.error('Cache invalidation error:', error);
             }
         }
     }
