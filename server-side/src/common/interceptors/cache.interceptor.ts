@@ -3,7 +3,7 @@ import {Observable, of, tap} from 'rxjs';
 import {CACHE_MANAGER} from '@nestjs/cache-manager';
 import {Cache} from 'cache-manager';
 import {Reflector} from '@nestjs/core';
-import {CACHE_KEY_METADATA, CACHE_TTL_METADATA} from '../decorators/cache.decorator';
+import {CACHE_EVICT_METADATA, CACHE_KEY_METADATA, CACHE_TTL_METADATA} from '../decorators/cache.decorator';
 
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
@@ -17,15 +17,17 @@ export class CacheInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
         const isGetRequest = request.method === 'GET';
         const handler = context.getHandler();
-        const prefix = this.getResourcePrefix(request.path);
-
-        const cacheKey = this.reflector.get(CACHE_KEY_METADATA, handler) || `${prefix}:${request.url}`;
-        const ttl = this.reflector.get(CACHE_TTL_METADATA, handler) || 3600;
 
         if (!isGetRequest) {
-            await this.invalidateCache(prefix);
+            const evictKey = this.reflector.get(CACHE_EVICT_METADATA, handler);
+            if (evictKey) {
+                await this.invalidateCache(evictKey, request.params.id);
+            }
             return next.handle();
         }
+
+        const cacheKey = this.getCacheKey(handler, request);
+        const ttl = this.reflector.get(CACHE_TTL_METADATA, handler) || 3600;
 
         const cachedData = await this.cacheManager.get(cacheKey);
         if (cachedData) {
@@ -39,25 +41,24 @@ export class CacheInterceptor implements NestInterceptor {
         );
     }
 
-    private getResourcePrefix(path: string): string {
-        const resource = path.split('/')[1]; // Extract resource from path (e.g., 'movies' from '/movies/123')
-        return resource || 'default';
+    private getCacheKey(handler: any, request: any): string {
+        const key = this.reflector.get(CACHE_KEY_METADATA, handler);
+        if (!key) return request.url;
+        return request.params.id ? key.replace(':id', request.params.id) : key;
     }
 
-    private async invalidateCache(prefix: string): Promise<void> {
-        const redisCache = this.cacheManager as any;
-        if (redisCache.store.client) {
-            try {
-                const keys = await redisCache.store.client.keys(`*${prefix}*`);
-                if (keys.length > 0) {
-                    await Promise.all([
-                        this.cacheManager.del(`${prefix}_all`),
-                        ...keys.map(key => this.cacheManager.del(key))
-                    ]);
-                }
-            } catch (error) {
-                console.error('Cache invalidation error:', error);
+    private async invalidateCache(key: string, id?: string): Promise<void> {
+        try {
+            if (key.includes(':id') && id) {
+                // If key contains :id pattern and we have an ID, invalidate specific key
+                const specificKey = key.replace(':id', id);
+                await this.cacheManager.del(specificKey);
+            } else {
+                // Otherwise invalidate the exact key
+                await this.cacheManager.del(key);
             }
+        } catch (error) {
+            console.error('Cache invalidation error:', error);
         }
     }
 }

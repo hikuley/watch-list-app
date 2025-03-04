@@ -5,7 +5,7 @@ import {UpdateMovieDto} from './dto/update-movie.dto';
 
 import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
 import {Movie} from "./entities/movies.entity";
-import {CacheKey, CacheTTL} from "../common/decorators/cache.decorator";
+import {CacheEvict, CacheKey, CacheTTL} from "../common/decorators/cache.decorator";
 import {CacheInterceptor} from "../common/interceptors/cache.interceptor";
 
 @ApiTags('movies')
@@ -16,6 +16,7 @@ export class MoviesController {
     }
 
     @Post()
+    @CacheEvict('all_movies')
     @ApiOperation({summary: 'Create a new movie'})
     @ApiResponse({status: 201, description: 'The movie has been created successfully.', type: Movie})
     create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
