@@ -29,7 +29,7 @@ export class CacheInterceptor implements NestInterceptor {
         }
 
         return next.handle().pipe(
-            tap(async (data) => {
+            tap(async (data: any) => {
                 await this.cacheManager.set(key, data, ttl * 1000);
             }),
         );
