@@ -9,7 +9,6 @@ import {CacheEvict, CacheKey, CacheTTL} from "../common/decorators/cache.decorat
 import {CacheInterceptor} from "../common/interceptors/cache.interceptor";
 
 const CASH_ALL_MOVIES = 'all_movies';
-const CASH_MOVIE_BY_ID = 'movie_by_id_:id';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -36,7 +35,7 @@ export class MoviesController {
     }
 
     @Get(':id')
-    @CacheKey(CASH_MOVIE_BY_ID)
+    @CacheKey(CASH_ALL_MOVIES)
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get a movie by id'})
     @ApiResponse({status: 200, description: 'Return the movie.', type: Movie})
@@ -46,7 +45,7 @@ export class MoviesController {
     }
 
     @Patch(':id')
-    @CacheEvict(CASH_MOVIE_BY_ID)
+    @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Update a movie'})
     @ApiResponse({status: 200, description: 'The movie has been updated successfully.', type: Movie})
     @ApiResponse({status: 404, description: 'Movie not found.'})
@@ -55,7 +54,7 @@ export class MoviesController {
     }
 
     @Delete(':id')
-    @CacheKey(CASH_MOVIE_BY_ID)
+    @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Delete a movie'})
     @ApiResponse({status: 200, description: 'The movie has been deleted successfully.'})
     @ApiResponse({status: 404, description: 'Movie not found.'})

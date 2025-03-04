@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# This script starts or stops all specified services (postgres, kafka, redis)
-# Usage: ./dev.sh [start|stop]
+# This script starts, stops, or purges all specified services (postgres, kafka, redis)
+# Usage: ./dev.sh [start|stop|purge]
 # Example: ./dev.sh start
 
-# Check if exactly one argument is provided and if it is either 'start' or 'stop'
-if [ "$#" -ne 1 ] || [[ ! "$1" =~ ^(start|stop)$ ]]; then
-    echo "Usage: $0 [start|stop]"
+# Check if exactly one argument is provided and if it is either 'start', 'stop', or 'purge'
+if [ "$#" -ne 1 ] || [[ ! "$1" =~ ^(start|stop|purge)$ ]]; then
+    echo "Usage: $0 [start|stop|purge]"
     exit 1
 fi
 
-# Store the action (start or stop) in a variable
+# Store the action (start, stop, or purge) in a variable
 action=$1
 
 # Define an array of services to be managed
