@@ -1,13 +1,16 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseInterceptors} from '@nestjs/common';
 import {MoviesService} from './movies.service';
 import {CreateMovieDto} from './dto/create-movie.dto';
 import {UpdateMovieDto} from './dto/update-movie.dto';
 
 import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
 import {Movie} from "./entities/movies.entity";
+import {CacheKey, CacheTTL} from "../common/decorators/cache.decorator";
+import {CacheInterceptor} from "../common/interceptors/cache.interceptor";
 
 @ApiTags('movies')
 @Controller('movies')
+@UseInterceptors(CacheInterceptor)
 export class MoviesController {
     constructor(private readonly moviesService: MoviesService) {
     }
@@ -20,6 +23,8 @@ export class MoviesController {
     }
 
     @Get()
+    @CacheKey('all_movies')
+    @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get all movies'})
     @ApiResponse({status: 200, description: 'Return all movies.', type: [Movie]})
     findAll(): Promise<Movie[]> {
