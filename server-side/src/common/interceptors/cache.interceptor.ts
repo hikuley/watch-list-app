@@ -17,23 +17,21 @@ export class CacheInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
         const isGetRequest = request.method === 'GET';
         const handler = context.getHandler();
+        const prefix = this.getResourcePrefix(request.path);
 
-        const cacheKey = this.reflector.get(CACHE_KEY_METADATA, handler) || request.url;
+        const cacheKey = this.reflector.get(CACHE_KEY_METADATA, handler) || `${prefix}:${request.url}`;
         const ttl = this.reflector.get(CACHE_TTL_METADATA, handler) || 3600;
 
         if (!isGetRequest) {
-            // For POST, PATCH, DELETE: invalidate related caches
-            await this.invalidateCache();
+            await this.invalidateCache(prefix);
             return next.handle();
         }
 
-        // For GET requests: try to get from cache
         const cachedData = await this.cacheManager.get(cacheKey);
         if (cachedData) {
             return of(cachedData);
         }
 
-        // If not in cache, get from source and cache it
         return next.handle().pipe(
             tap(async (data: any) => {
                 await this.cacheManager.set(cacheKey, data, ttl * 1000);
@@ -41,15 +39,19 @@ export class CacheInterceptor implements NestInterceptor {
         );
     }
 
-    private async invalidateCache(): Promise<void> {
+    private getResourcePrefix(path: string): string {
+        const resource = path.split('/')[1]; // Extract resource from path (e.g., 'movies' from '/movies/123')
+        return resource || 'default';
+    }
+
+    private async invalidateCache(prefix: string): Promise<void> {
         const redisCache = this.cacheManager as any;
         if (redisCache.store.client) {
             try {
-                // Clear all movies-related caches
-                const keys = await redisCache.store.client.keys('*movies*');
+                const keys = await redisCache.store.client.keys(`*${prefix}*`);
                 if (keys.length > 0) {
                     await Promise.all([
-                        this.cacheManager.del('all_movies'),
+                        this.cacheManager.del(`${prefix}_all`),
                         ...keys.map(key => this.cacheManager.del(key))
                     ]);
                 }
