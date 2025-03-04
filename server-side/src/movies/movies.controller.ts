@@ -55,6 +55,7 @@ export class MoviesController {
     }
 
     @Delete(':id')
+    @CacheKey(CASH_MOVIE_BY_ID)
     @ApiOperation({summary: 'Delete a movie'})
     @ApiResponse({status: 200, description: 'The movie has been deleted successfully.'})
     @ApiResponse({status: 404, description: 'Movie not found.'})

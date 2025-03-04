@@ -1,31 +1,34 @@
 # Watch List Web App
 
-## Prepare Dev Environment
+## Setting Up the Development Environment
 
-Give the script permission to execute:
+Grant execution permission to the script:
 ```bash
 chmod +x ./dev.sh 
 ```
 
-Run the script to start the dev environment:
+Start the development environment by running the script:
 ```bash
 ./dev.sh start 
 ```
 
-After the script is executed, the following services will be started:
+This will initialize the following services:
 - PostgreSQL
 - Redis
 - Apache Kafka
 
+## Database Integration
+Before starting the server, integrate the database by running:
+```bash
+cd server-side && npm run database-integrate
+```
 
 Run server-side:
-
 ```bash
 cd server-side && npm run start
 ```
 
 Run ui-side:
-
 ```bash
 cd server-ui && npm run dev
 ```
