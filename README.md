@@ -4,7 +4,7 @@
 
 Grant execution permission to the script:
 ```bash
-chmod +x ./dev.sh 
+chmod +x ./dev.sh
 ```
 
 Start the development environment by running the script:
@@ -17,18 +17,22 @@ This will initialize the following services:
 - Redis
 - Apache Kafka
 
-## Database Integration
+### Database Integration
 Before starting the server, integrate the database by running:
 ```bash
 cd server-side && npm run database-integrate
 ```
 
-## Running the Server
+### Running the Server
 ```bash
 cd server-side && npm run start
 ```
 
-## Running the UI
+### Running the UI
 ```bash
 cd server-ui && npm run dev
 ```
+
+### Access Swagger UI
+The Swagger UI can be accessed at:
+- [http://localhost:3000/api](http://localhost:3000/api)
