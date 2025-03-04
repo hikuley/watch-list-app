@@ -8,6 +8,9 @@ import {Movie} from "./entities/movies.entity";
 import {CacheEvict, CacheKey, CacheTTL} from "../common/decorators/cache.decorator";
 import {CacheInterceptor} from "../common/interceptors/cache.interceptor";
 
+const CASH_ALL_MOVIES = 'all_movies';
+const CASH_MOVIE_BY_ID = 'movie_by_id_:id';
+
 @ApiTags('movies')
 @Controller('movies')
 @UseInterceptors(CacheInterceptor)
@@ -16,7 +19,7 @@ export class MoviesController {
     }
 
     @Post()
-    @CacheEvict('all_movies')
+    @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Create a new movie'})
     @ApiResponse({status: 201, description: 'The movie has been created successfully.', type: Movie})
     create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
@@ -24,7 +27,7 @@ export class MoviesController {
     }
 
     @Get()
-    @CacheKey('all_movies')
+    @CacheKey(CASH_ALL_MOVIES)
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get all movies'})
     @ApiResponse({status: 200, description: 'Return all movies.', type: [Movie]})
@@ -33,7 +36,7 @@ export class MoviesController {
     }
 
     @Get(':id')
-    @CacheKey('movie_by_id_:id')
+    @CacheKey(CASH_MOVIE_BY_ID)
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get a movie by id'})
     @ApiResponse({status: 200, description: 'Return the movie.', type: Movie})
@@ -43,13 +46,11 @@ export class MoviesController {
     }
 
     @Patch(':id')
+    @CacheEvict(CASH_MOVIE_BY_ID)
     @ApiOperation({summary: 'Update a movie'})
     @ApiResponse({status: 200, description: 'The movie has been updated successfully.', type: Movie})
     @ApiResponse({status: 404, description: 'Movie not found.'})
-    update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() updateMovieDto: UpdateMovieDto,
-    ): Promise<Movie> {
+    update(@Param('id', ParseIntPipe) id: number, @Body() updateMovieDto: UpdateMovieDto,): Promise<Movie> {
         return this.moviesService.update(id, updateMovieDto);
     }
 

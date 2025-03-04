@@ -22,7 +22,7 @@ echo "Performing $action for all services..."
 # Loop through each service and run the corresponding script with the action
 for service in "${services[@]}"; do
     echo "Running $service-docker.sh $action"
-    ./$service-docker.sh $action
+    ./dev-env-scripts/$service-docker.sh $action
 done
 
 # Run docker ps to show the status of all containers after the action
