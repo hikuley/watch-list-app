@@ -1,8 +1,9 @@
 import {Module} from '@nestjs/common';
-import {DatabaseModule} from './database/database.module';
-import {MoviesModule} from './movies/movies.module';
-import {AuthModule} from "./auth/auth.module";
-import {RedisCacheModule} from "./config/redis.config";
+import {DatabaseModule} from './config/database/database.module';
+
+import {RedisCacheModule} from "./config/redis/redis.config";
+import {MoviesModule} from "./domain/movies/movies.module";
+import {AuthModule} from "./domain/auth/auth.module";
 
 @Module({
     imports: [

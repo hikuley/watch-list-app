@@ -1,11 +1,12 @@
-import * as schema from '../../database/schema';
+import * as schema from '../../../config/database/schema';
 import {ConflictException, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {and, eq} from 'drizzle-orm';
 import {SignupDto} from '../dto/signup.dto';
 import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
-import {generateVerificationCode} from '../../utils/generate-verification-code';
+import {generateVerificationCode} from "../../../utils/generate-verification-code";
+
 
 @Injectable()
 export class AuthService {
