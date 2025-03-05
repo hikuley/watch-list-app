@@ -1,7 +1,7 @@
 import {Injectable, Inject, NotFoundException} from '@nestjs/common';
 import {eq} from 'drizzle-orm';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {movies, Movie, NewMovie} from '../db/schema';
+import {movies, Movie, NewMovie} from '../database/schema';
 import {CreateMovieDto} from './dto/create-movie.dto';
 import {UpdateMovieDto} from './dto/update-movie.dto';
 

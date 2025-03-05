@@ -1,4 +1,4 @@
-import * as schema from '../../db/schema';
+import * as schema from '../../database/schema';
 import {ConflictException, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {and, eq} from 'drizzle-orm';
