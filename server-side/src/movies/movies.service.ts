@@ -8,7 +8,7 @@ import {UpdateMovieDto} from './dto/update-movie.dto';
 @Injectable()
 export class MoviesService {
     constructor(
-        @Inject('DRIZZLE')
+        @Inject('DB_INSTANCE')
         private db: NodePgDatabase
     ) {
     }

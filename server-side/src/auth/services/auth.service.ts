@@ -10,7 +10,7 @@ import {generateVerificationCode} from '../../utils/generate-verification-code';
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject('DRIZZLE')
+        @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
     ) {

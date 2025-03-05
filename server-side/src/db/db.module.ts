@@ -6,11 +6,11 @@ import {db} from "./index";
 @Module({
     providers: [
         {
-            provide: 'DRIZZLE',
+            provide: 'DB_INSTANCE',
             useValue: db,
         },
     ],
-    exports: ['DRIZZLE'],
+    exports: ['DB_INSTANCE'],
 })
-export class DrizzleModule {
+export class DatabaseModule {
 }
