@@ -10,8 +10,8 @@ async function bootstrap() {
     app.setGlobalPrefix('api');
 
     const config = new DocumentBuilder()
-        .setTitle('Movies API')
-        .setDescription('The Movies API description')
+        .setTitle('Watch List API')
+        .setDescription('Watch List API description')
         .setVersion('1.0')
         .addTag('movies')
         .build();

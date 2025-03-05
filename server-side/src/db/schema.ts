@@ -1,15 +1,19 @@
-import {pgTable, serial, varchar, text, integer, timestamp, decimal} from 'drizzle-orm/pg-core';
+import {boolean, integer, pgTable, serial, text, timestamp, varchar} from 'drizzle-orm/pg-core';
 
-export const usersTable = pgTable("users", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({length: 255}).notNull(),
-    country: varchar({length: 255}).notNull(),
-    age: integer().notNull(),
-    email: varchar({length: 255}).notNull().unique(),
+export const users = pgTable('users', {
+    id: serial('id').primaryKey(),
+    email: varchar('email', { length: 255 }).unique().notNull(),
+    password: varchar('password', { length: 255 }).notNull(),
+    firstName: varchar('first_name', { length: 100 }),
+    lastName: varchar('last_name', { length: 100 }),
+    isVerified: boolean('is_verified').default(false),
+    verificationCode: varchar('verification_code', { length: 6 }),
+    verificationCodeExpiry: timestamp('verification_code_expiry'),
+    createdAt: timestamp('created_at').defaultNow(),
 });
 
-export type User = typeof usersTable.$inferSelect;
-export type NewUser = typeof usersTable.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 
 export const movies = pgTable('movies', {
     id: serial('id').primaryKey(),
