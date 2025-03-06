@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {ClientsModule, Transport} from '@nestjs/microservices';
-import {KafkaService} from './kafka.service';
-import KafkaController from "./kafka.controller";
+import {KafkaService} from '../../common/message/kafka.service';
+import KafkaConsumer from "../../common/message/kafka.consumer";
 import {KAFKA_CONFIG} from "./kafka.config";
 import {EmailService} from "../../common/email/email.service";
 
@@ -28,7 +28,7 @@ import {EmailService} from "../../common/email/email.service";
     ],
     providers: [KafkaService, EmailService],
     exports: [KafkaService],
-    controllers: [KafkaController],
+    controllers: [KafkaConsumer],
 })
 export class KafkaModule {
 }

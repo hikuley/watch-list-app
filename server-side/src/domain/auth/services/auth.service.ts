@@ -6,7 +6,7 @@ import {SignupDto} from '../dto/signup.dto';
 import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
 import {generateVerificationCode} from "../../../utils/generate-verification-code";
-import {KafkaService} from "../../../config/kafka/kafka.service";
+import {KafkaService} from "../../../common/message/kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {EmailService} from "../../../common/email/email.service";
 import {KafkaTopics} from "../../../config/kafka/kafka.topics";

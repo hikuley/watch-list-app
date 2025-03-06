@@ -1,12 +1,12 @@
 import {Controller, Get} from "@nestjs/common";
 import {KafkaService} from "./kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {KafkaTopics} from "./kafka.topics";
-import {EmailService} from "../../common/email/email.service";
+import {KafkaTopics} from "../../config/kafka/kafka.topics";
+import {EmailService} from "../email/email.service";
 
 
 @Controller('kafka')
-class KafkaController {
+class KafkaConsumer {
     constructor(
         private readonly kafkaService: KafkaService,
         private readonly emailService: EmailService
@@ -37,4 +37,4 @@ class KafkaController {
 
 }
 
-export default KafkaController;
+export default KafkaConsumer;

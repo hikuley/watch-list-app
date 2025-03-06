@@ -2,7 +2,7 @@ import {Body, Controller, Post, ValidationPipe} from '@nestjs/common';
 import {AuthService} from './services/auth.service';
 import {SignupDto} from './dto/signup.dto';
 import {VerifyEmailDto} from './dto/verify-email.dto';
-import {KafkaService} from "../../config/kafka/kafka.service";
+import {KafkaService} from "../../common/message/kafka.service";
 
 @Controller('auth')
 export class AuthController {
