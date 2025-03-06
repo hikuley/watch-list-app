@@ -1,6 +1,9 @@
 import {Module} from '@nestjs/common';
 import {ClientsModule, Transport} from '@nestjs/microservices';
 import {KafkaService} from './kafka.service';
+import KafkaController from "./kafka.controller";
+import {KAFKA_CONFIG} from "./kafka.config";
+
 
 @Module({
     imports: [
@@ -10,10 +13,10 @@ import {KafkaService} from './kafka.service';
                 transport: Transport.KAFKA,
                 options: {
                     client: {
-                        brokers: [(process.env.KAFKA_BROKERS || 'localhost:9092')],
+                        brokers: KAFKA_CONFIG.BROKERS,
                     },
                     consumer: {
-                        groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'my-consumer-group',
+                        groupId: KAFKA_CONFIG.CONSUMER_GROUP_ID,
                     },
                     producer: {
                         allowAutoTopicCreation: true,
@@ -24,6 +27,7 @@ import {KafkaService} from './kafka.service';
     ],
     providers: [KafkaService],
     exports: [KafkaService],
+    controllers: [KafkaController],
 })
 export class KafkaModule {
 }

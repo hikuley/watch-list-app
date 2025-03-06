@@ -3,6 +3,8 @@ import {AppModule} from './app.module';
 import {INestApplication, ValidationPipe} from "@nestjs/common";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {MicroserviceOptions, Transport} from "@nestjs/microservices";
+import {KAFKA_CONFIG} from "./config/kafka/kafka.config";
+
 
 
 async function configureKafkaConsumer(app: INestApplication<any>) {
@@ -10,10 +12,10 @@ async function configureKafkaConsumer(app: INestApplication<any>) {
         transport: Transport.KAFKA,
         options: {
             client: {
-                brokers: [(process.env.KAFKA_BROKERS || 'localhost:9092')],
+                brokers: KAFKA_CONFIG.BROKERS,
             },
             consumer: {
-                groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'my-consumer-group',
+                groupId: KAFKA_CONFIG.CONSUMER_GROUP_ID,
             },
         },
     });
