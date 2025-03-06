@@ -10,6 +10,7 @@ import {KafkaService} from "../../../common/message/kafka.service";
 import {KafkaTopics} from "../../../common/message/kafka.topics";
 import LoginDto from "../dto/login.dto";
 import {TokenDto} from "../dto/token.dto";
+import {JwtService} from "@nestjs/jwt";
 
 
 @Injectable()
@@ -18,7 +19,8 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
-        private readonly kafkaService: KafkaService
+        private readonly kafkaService: KafkaService,
+        private jwtService: JwtService
     ) {
     }
 
@@ -106,11 +108,50 @@ export class AuthService {
 
     async login(loginDto: LoginDto): Promise<TokenDto> {
         const {email, password} = loginDto;
-        const tokenDto = new TokenDto();
 
+        // Find user by email
+        const user = await this.db.query.users.findFirst({
+            where: eq(schema.users.email, email)
+        });
 
-        return tokenDto;
+        // Check if user exists
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        // Check if user is verified
+        if (!user.isVerified) {
+            throw new UnauthorizedException(
+                'Please verify your email before logging in'
+            );
+        }
+
+        // Verify password
+        const isPasswordValid = await this.passwordService.comparePasswords(
+            password,
+            user.password
+        );
+
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        // Generate JWT token
+        const payload = {
+            sub: user.id,
+            email: user.email
+        };
+
+        const token = this.jwtService.sign(payload);
+
+        // Calculate token expiration date (24 hours from now)
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        return {
+            token,
+            expiresAt
+        };
     }
-
 
 }
