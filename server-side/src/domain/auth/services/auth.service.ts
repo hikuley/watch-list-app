@@ -18,8 +18,7 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
-        private readonly kafkaService: KafkaService,
-        private readonly emailService: EmailService
+        private readonly kafkaService: KafkaService
     ) {
     }
 
@@ -69,19 +68,6 @@ export class AuthService {
             userId: newUser.id
         };
     }
-
-    @MessagePattern(KafkaTopics.SEND_VERIFICATION_EMAIL)
-    async handleSendVerificationEmail(@Payload() message: any) {
-        console.log('Received message:', message);
-
-        await this.emailService.sendMail(
-            message.email,
-            'Email Verification',
-            `Your verification code is: ${message.verificationCode}`
-        );
-
-    }
-
 
     async verifyEmail(verifyEmailDto: VerifyEmailDto) {
         const {email, verificationCode} = verifyEmailDto;
