@@ -4,9 +4,10 @@ import {AuthController} from './auth.controller';
 import {DatabaseModule} from '../../config/database/database.module';
 import {PasswordService} from './services/password.service';
 import {KafkaModule} from "../../config/kafka/kafka.module";
+import {EmailModule} from "../../common/email/email.module";
 
 @Module({
-    imports: [DatabaseModule, KafkaModule],
+    imports: [DatabaseModule, KafkaModule, EmailModule],
     controllers: [AuthController],
     providers: [AuthService, PasswordService],
 })

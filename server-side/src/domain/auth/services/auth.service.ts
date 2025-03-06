@@ -8,6 +8,8 @@ import {PasswordService} from './password.service';
 import {generateVerificationCode} from "../../../utils/generate-verification-code";
 import {KafkaService} from "../../../config/kafka/kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
+import {EmailService} from "../../../common/email/email.service";
+import {KafkaTopics} from "../../../config/kafka/kafka.topics";
 
 
 @Injectable()
@@ -16,7 +18,8 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
-        private readonly kafkaService: KafkaService
+        private readonly kafkaService: KafkaService,
+        private readonly emailService: EmailService
     ) {
     }
 
@@ -59,7 +62,7 @@ export class AuthService {
             verificationCode: verificationCode
         };
 
-        await this.kafkaService.sendMessage('send-verification-email', verificationMessage);
+        await this.kafkaService.sendMessage(KafkaTopics.SEND_VERIFICATION_EMAIL, verificationMessage);
 
         return {
             message: 'User registered successfully. Please check your email for verification.',
@@ -67,9 +70,16 @@ export class AuthService {
         };
     }
 
-    @MessagePattern('send-verification-email')
+    @MessagePattern(KafkaTopics.SEND_VERIFICATION_EMAIL)
     async handleSendVerificationEmail(@Payload() message: any) {
         console.log('Received message:', message);
+
+        await this.emailService.sendMail(
+            message.email,
+            'Email Verification',
+            `Your verification code is: ${message.verificationCode}`
+        );
+
     }
 
 

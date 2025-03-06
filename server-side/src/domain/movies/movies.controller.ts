@@ -10,7 +10,7 @@ import {CacheEvict, CacheKey, CacheTTL} from "../../config/redis/decorators/cach
 
 const CASH_ALL_MOVIES = 'all_movies';
 
-@ApiTags('movies')
+@ApiTags('Movies')
 @Controller('movies')
 @UseInterceptors(CacheInterceptor)
 export class MoviesController {

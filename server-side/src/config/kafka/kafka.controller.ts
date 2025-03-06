@@ -1,6 +1,7 @@
 import {Controller, Get} from "@nestjs/common";
 import {KafkaService} from "./kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
+import {KafkaTopics} from "./kafka.topics";
 
 
 @Controller('kafka')
@@ -10,13 +11,13 @@ class KafkaController {
 
     @Get('test-send-message')
     async sendMessage() {
-        await this.kafkaService.sendMessage('test-topic-test', {key: 'value'});
+        await this.kafkaService.sendMessage(KafkaTopics.TEST_TOPIC_TEST, {key: 'value'});
         return 'Message sent!';
     }
 
-    @MessagePattern('test-topic-test')
+    @MessagePattern(KafkaTopics.TEST_TOPIC_TEST)
     async handleKafkaMessage(@Payload() message: any) {
-        console.log('Received message:', message);
+        console.log('Received message TEST:', message);
     }
 
 }

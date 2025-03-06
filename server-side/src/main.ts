@@ -27,7 +27,6 @@ async function configureSwaggerDoc(app: INestApplication<any>) {
         .setTitle('Watch List API')
         .setDescription('Watch List API description')
         .setVersion('1.0')
-        .addTag('movies')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
