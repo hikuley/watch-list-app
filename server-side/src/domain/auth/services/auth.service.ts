@@ -6,6 +6,8 @@ import {SignupDto} from '../dto/signup.dto';
 import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
 import {generateVerificationCode} from "../../../utils/generate-verification-code";
+import {KafkaService} from "../../../config/kafka/kafka.service";
+import {MessagePattern, Payload} from "@nestjs/microservices";
 
 
 @Injectable()
@@ -14,6 +16,7 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
+        private readonly kafkaService: KafkaService
     ) {
     }
 
@@ -51,17 +54,24 @@ export class AuthService {
             .returning();
 
         // Send verification email via Kafka
-        // this.kafkaClient.emit('send_verification_email', JSON.stringify({
-        //     email: newUser.email,
-        //     verificationCode: verificationCode
-        // }));
+        const verificationMessage = {
+            email: newUser.email,
+            verificationCode: verificationCode
+        };
 
+        await this.kafkaService.sendMessage('send-verification-email', verificationMessage);
 
         return {
             message: 'User registered successfully. Please check your email for verification.',
             userId: newUser.id
         };
     }
+
+    @MessagePattern('send-verification-email')
+    async handleSendVerificationEmail(@Payload() message: any) {
+        console.log('Received message:', message);
+    }
+
 
     async verifyEmail(verifyEmailDto: VerifyEmailDto) {
         const {email, verificationCode} = verifyEmailDto;
