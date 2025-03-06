@@ -3,9 +3,11 @@ import {KafkaService} from "./kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {KafkaTopics} from "./kafka.topics";
 import {EmailService} from "../email/email.service";
+import {ApiOperation, ApiTags} from "@nestjs/swagger";
 
 
 @Controller('kafka')
+@ApiTags('Message Consumer Test')
 class KafkaConsumer {
     constructor(
         private readonly kafkaService: KafkaService,
@@ -14,6 +16,7 @@ class KafkaConsumer {
     }
 
     @Get('test-send-message')
+    @ApiOperation({summary: 'Test Kafka Messaging'})
     async sendMessage() {
         await this.kafkaService.sendMessage(KafkaTopics.TEST_TOPIC_TEST, {key: 'value'});
         return 'Message sent!';
