@@ -9,7 +9,7 @@ import {generateVerificationCode} from "../../../utils/generate-verification-cod
 import {KafkaService} from "../../../common/message/kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {EmailService} from "../../../common/email/email.service";
-import {KafkaTopics} from "../../../config/kafka/kafka.topics";
+import {KafkaTopics} from "../../../common/message/kafka.topics";
 
 
 @Injectable()

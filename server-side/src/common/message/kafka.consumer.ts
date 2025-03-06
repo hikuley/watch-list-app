@@ -1,7 +1,7 @@
 import {Controller, Get} from "@nestjs/common";
 import {KafkaService} from "./kafka.service";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {KafkaTopics} from "../../config/kafka/kafka.topics";
+import {KafkaTopics} from "./kafka.topics";
 import {EmailService} from "../email/email.service";
 
 
