@@ -148,10 +148,11 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
 
-        return {
+        return TokenDto = {
             token,
             expiresAt
-        };
+        }
+
     }
 
 }
