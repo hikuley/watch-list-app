@@ -5,8 +5,8 @@ import {UpdateMovieDto} from './dto/update-movie.dto';
 
 import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
 import {Movie} from "./entities/movies.entity";
-import {CacheInterceptor} from "../../config/redis/interceptors/cache.interceptor";
-import {CacheEvict, CacheKey, CacheTTL} from "../../config/redis/decorators/cache.decorator";
+import {CacheInterceptor} from "../../common/cash/interceptors/cache.interceptor";
+import {CacheEvict, CacheKey, CacheTTL} from "../../common/cash/decorators/cache.decorator";
 
 const CASH_ALL_MOVIES = 'all_movies';
 

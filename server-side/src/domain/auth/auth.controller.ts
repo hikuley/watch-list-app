@@ -4,6 +4,9 @@ import {SignupDto} from './dto/signup.dto';
 import {VerifyEmailDto} from './dto/verify-email.dto';
 import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
 
+import LoginDto from "./dto/login.dto";
+import {TokenDto} from "./dto/token.dto";
+
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
@@ -26,4 +29,14 @@ export class AuthController {
     async verifyEmail(@Body(new ValidationPipe()) verifyEmailDto: VerifyEmailDto) {
         return this.authService.verifyEmail(verifyEmailDto);
     }
+
+    @Post('login')
+    @ApiOperation({summary: 'Login user'})
+    @ApiResponse({status: 200, description: 'User has been successfully logged in.', type: TokenDto})
+    @ApiResponse({status: 400, description: 'Bad Request - Invalid input data.'})
+    @ApiResponse({status: 401, description: 'Unauthorized - Invalid email or password.'})
+    async login(@Body(new ValidationPipe()) loginDto: LoginDto): Promise<TokenDto> {
+        return this.authService.login(loginDto);
+    }
+
 }

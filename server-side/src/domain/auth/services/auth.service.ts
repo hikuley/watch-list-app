@@ -7,9 +7,9 @@ import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
 import {generateVerificationCode} from "../../../utils/generate-verification-code";
 import {KafkaService} from "../../../common/message/kafka.service";
-import {MessagePattern, Payload} from "@nestjs/microservices";
-import {EmailService} from "../../../common/email/email.service";
 import {KafkaTopics} from "../../../common/message/kafka.topics";
+import LoginDto from "../dto/login.dto";
+import {TokenDto} from "../dto/token.dto";
 
 
 @Injectable()
@@ -103,4 +103,14 @@ export class AuthService {
             userId: user.id
         };
     }
+
+    async login(loginDto: LoginDto): Promise<TokenDto> {
+        const {email, password} = loginDto;
+        const tokenDto = new TokenDto();
+
+
+        return tokenDto;
+    }
+
+
 }

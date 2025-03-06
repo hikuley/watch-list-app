@@ -8,11 +8,11 @@ import {ConfigModule, ConfigService} from '@nestjs/config';
     imports: [
         CacheModule.registerAsync({
             imports: [ConfigModule],
-            useFactory: () => ({
+            useFactory: (configService: ConfigService) => ({
                 store: redisStore,
                 socket: {
-                    host: process.env.REDIS_HOST || 'localhost',
-                    port: parseInt(process.env.REDIS_PORT || '6379'),
+                    host: configService.get<string>('REDIS_HOST'),
+                    port: configService.get<number>('REDIS_PORT'),
                 },
                 ttl: 60 * 60,
             }),
