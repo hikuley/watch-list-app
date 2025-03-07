@@ -6,7 +6,7 @@ import {SignupDto} from '../dto/signup.dto';
 import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
 import {generateVerificationCode} from "../../utils/generate-verification-code";
-import {KafkaService} from "../../message/kafka.service";
+import {KafkaProducer} from "../../message/kafka.producer";
 import {KafkaTopics} from "../../message/kafka.topics";
 import LoginDto from "../dto/login.dto";
 import {TokenDto} from "../dto/token.dto";
@@ -19,7 +19,7 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
-        private readonly kafkaService: KafkaService,
+        private readonly kafkaService: KafkaProducer,
         private jwtService: JwtService
     ) {
     }

@@ -1,5 +1,5 @@
 import {Controller, Get} from "@nestjs/common";
-import {KafkaService} from "./kafka.service";
+import {KafkaProducer} from "./kafka.producer";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {KafkaTopics} from "./kafka.topics";
 import {EmailService} from "../email/email.service";
@@ -10,7 +10,7 @@ import {ApiOperation, ApiTags} from "@nestjs/swagger";
 @ApiTags('Message Consumer Test')
 class KafkaConsumer {
     constructor(
-        private readonly kafkaService: KafkaService,
+        private readonly kafkaService: KafkaProducer,
         private readonly emailService: EmailService
     ) {
     }
