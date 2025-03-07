@@ -11,8 +11,8 @@ export class EmailService {
             port: 587,
             secure: false, // true for 465, false for other ports
             auth: {
-                user: 'sim.reichel@ethereal.email',
-                pass: '84pvFCdvggGsDM69tG',
+                user: 'jessica67@ethereal.email',
+                pass: '6s2TDQH8Vk3rNpsny5',
             },
         });
     }
