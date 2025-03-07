@@ -5,7 +5,7 @@ import {and, eq} from 'drizzle-orm';
 import {SignupDto} from '../dto/signup.dto';
 import {VerifyEmailDto} from '../dto/verify-email.dto';
 import {PasswordService} from './password.service';
-import {generateVerificationCode} from "../../../utils/generate-verification-code";
+import {generateVerificationCode} from "../../../common/utils/generate-verification-code";
 import {KafkaService} from "../../../common/message/kafka.service";
 import {KafkaTopics} from "../../../common/message/kafka.topics";
 import LoginDto from "../dto/login.dto";
@@ -148,10 +148,12 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
 
-        return TokenDto = {
-            token,
-            expiresAt
-        }
+        // Return token and expiration date
+        const tokenDto = new TokenDto();
+        tokenDto.token = token;
+        tokenDto.expiresAt = expiresAt;
+
+        return tokenDto;
 
     }
 

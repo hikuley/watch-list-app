@@ -7,6 +7,8 @@ import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
 import {Movie} from "./entities/movies.entity";
 import {CacheInterceptor} from "../../common/cash/interceptors/cache.interceptor";
 import {CacheEvict, CacheKey, CacheTTL} from "../../common/cash/decorators/cache.decorator";
+import {AuthRequired} from "../auth/interceptors/auth.decorator";
+import {AuthInterceptor} from "../auth/interceptors/auth.interceptor";
 
 const CASH_ALL_MOVIES = 'all_movies';
 
@@ -26,6 +28,7 @@ export class MoviesController {
     }
 
     @Get()
+    @AuthRequired()
     @CacheKey(CASH_ALL_MOVIES)
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get all movies'})

@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Global, Module} from '@nestjs/common';
 import {AuthService} from './services/auth.service';
 import {AuthController} from './auth.controller';
 import {DatabaseModule} from '../../config/database/database.module';
@@ -7,6 +7,7 @@ import {KafkaModule} from "../../config/kafka/kafka.module";
 import {EmailModule} from "../../common/email/email.module";
 import {JwtModule} from "@nestjs/jwt";
 
+@Global()
 @Module({
     imports: [
         DatabaseModule,
