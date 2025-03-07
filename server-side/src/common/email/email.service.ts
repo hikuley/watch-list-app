@@ -1,18 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class EmailService {
     private transporter: nodemailer.Transporter;
 
-    constructor() {
+    constructor(private readonly configService: ConfigService) {
+
+        const host: string | undefined = this.configService.get<string>('EMAIL_HOST');
+        const user: string | undefined = this.configService.get<string>('EMAIL_USER');
+        const password: string | undefined = this.configService.get<string>('EMAIL_PASSWORD');
+        const port: number | undefined = this.configService.get<number>('EMAIL_PORT');
+
         this.transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
+            host: host,
+            port: port,
             secure: false, // true for 465, false for other ports
             auth: {
-                user: 'jessica67@ethereal.email',
-                pass: '6s2TDQH8Vk3rNpsny5',
+                user: user,
+                pass: password,
             },
         });
     }
