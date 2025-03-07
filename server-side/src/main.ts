@@ -27,6 +27,18 @@ async function configureSwaggerDoc(app: INestApplication<any>) {
         .setTitle('Watch List API')
         .setDescription('Watch List API description')
         .setVersion('1.0')
+        // Configure JWT Bearer token auth
+        .addBearerAuth(
+            {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+                name: 'JWT',
+                description: 'Enter JWT token',
+                in: 'header',
+            },
+            'JWT', // This name must match the one used in @ApiBearerAuth() decorator
+        )
         .build();
 
     const document = SwaggerModule.createDocument(app, config);

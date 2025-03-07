@@ -3,7 +3,7 @@ import {MoviesService} from './movies.service';
 import {CreateMovieDto} from './dto/create-movie.dto';
 import {UpdateMovieDto} from './dto/update-movie.dto';
 
-import {ApiTags, ApiOperation, ApiResponse} from '@nestjs/swagger';
+import {ApiTags, ApiOperation, ApiResponse, ApiBearerAuth} from '@nestjs/swagger';
 import {Movie} from "./entities/movies.entity";
 import {CacheInterceptor} from "../../common/cash/interceptors/cache.interceptor";
 import {CacheEvict, CacheKey, CacheTTL} from "../../common/cash/decorators/cache.decorator";
@@ -12,14 +12,16 @@ import {AuthInterceptor} from "../auth/interceptors/auth.interceptor";
 
 const CASH_ALL_MOVIES = 'all_movies';
 
-@ApiTags('Movies')
 @Controller('movies')
+@ApiTags('Movies')
+@ApiBearerAuth('JWT')
 @UseInterceptors(CacheInterceptor)
 export class MoviesController {
     constructor(private readonly moviesService: MoviesService) {
     }
 
     @Post()
+    @AuthRequired()
     @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Create a new movie'})
     @ApiResponse({status: 201, description: 'The movie has been created successfully.', type: Movie})
@@ -38,6 +40,7 @@ export class MoviesController {
     }
 
     @Get(':id')
+    @AuthRequired()
     @CacheKey(CASH_ALL_MOVIES)
     @CacheTTL(3600) // 1 hour
     @ApiOperation({summary: 'Get a movie by id'})
@@ -48,6 +51,7 @@ export class MoviesController {
     }
 
     @Patch(':id')
+    @AuthRequired()
     @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Update a movie'})
     @ApiResponse({status: 200, description: 'The movie has been updated successfully.', type: Movie})
@@ -57,6 +61,7 @@ export class MoviesController {
     }
 
     @Delete(':id')
+    @AuthRequired()
     @CacheEvict(CASH_ALL_MOVIES)
     @ApiOperation({summary: 'Delete a movie'})
     @ApiResponse({status: 200, description: 'The movie has been deleted successfully.'})
