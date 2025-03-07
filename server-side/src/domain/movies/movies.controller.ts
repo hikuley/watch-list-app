@@ -7,8 +7,8 @@ import {ApiTags, ApiOperation, ApiResponse, ApiBearerAuth} from '@nestjs/swagger
 import {Movie} from "./entities/movies.entity";
 import {CacheInterceptor} from "../../common/cash/interceptors/cache.interceptor";
 import {CacheEvict, CacheKey, CacheTTL} from "../../common/cash/decorators/cache.decorator";
-import {AuthRequired} from "../auth/interceptors/auth.decorator";
-import {AuthInterceptor} from "../auth/interceptors/auth.interceptor";
+import {AuthRequired} from "../../common/auth/interceptors/auth.decorator";
+import {AuthInterceptor} from "../../common/auth/interceptors/auth.interceptor";
 
 const CASH_ALL_MOVIES = 'all_movies';
 

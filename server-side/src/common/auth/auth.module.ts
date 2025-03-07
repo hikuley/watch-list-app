@@ -4,7 +4,7 @@ import {AuthController} from './auth.controller';
 import {DatabaseModule} from '../../config/database/database.module';
 import {PasswordService} from './services/password.service';
 import {KafkaModule} from "../../config/kafka/kafka.module";
-import {EmailModule} from "../../common/email/email.module";
+import {EmailModule} from "../email/email.module";
 import {JwtModule} from "@nestjs/jwt";
 
 @Global()

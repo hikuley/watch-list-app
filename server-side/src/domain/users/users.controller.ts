@@ -1,5 +1,5 @@
 import {Controller, Get} from '@nestjs/common';
-import {AuthRequired} from "../auth/interceptors/auth.decorator";
+import {AuthRequired} from "../../common/auth/interceptors/auth.decorator";
 
 @Controller('users')
 export class UsersController {
