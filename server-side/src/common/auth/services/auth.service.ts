@@ -10,7 +10,7 @@ import {KafkaProducer} from "../../message/kafka.producer";
 import {KafkaTopics} from "../../message/kafka.topics";
 import LoginDto from "../dto/login.dto";
 import {TokenDto} from "../dto/token.dto";
-import {JwtService} from "@nestjs/jwt";
+import {TokenService} from "./token.service";
 
 
 @Injectable()
@@ -19,8 +19,8 @@ export class AuthService {
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase<typeof schema>,
         private passwordService: PasswordService,
-        private readonly kafkaService: KafkaProducer,
-        private jwtService: JwtService
+        private tokenService: TokenService,
+        private readonly kafkaService: KafkaProducer
     ) {
     }
 
@@ -136,25 +136,20 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Generate JWT token
-        const payload = {
-            sub: user.id,
-            email: user.email
-        };
-
-        const token = this.jwtService.sign(payload);
-
-        // Calculate token expiration date (24 hours from now)
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24);
-
-        // Return token and expiration date
-        const tokenDto = new TokenDto();
-        tokenDto.token = token;
-        tokenDto.expiresAt = expiresAt;
+        // Generate token
+        const tokenDto = await this.tokenService.generateJWT(user.id, user.email);
 
         return tokenDto;
 
+    }
+
+    async logout(token: string): Promise<void> {
+        await this.tokenService.invalidateToken(token);
+    }
+
+    // Optional - call this periodically to clean up expired tokens
+    async cleanupTokens(): Promise<void> {
+        await this.tokenService.cleanExpiredTokens();
     }
 
 }

@@ -3,13 +3,21 @@ import {JwtService} from '@nestjs/jwt';
 import {Reflector} from '@nestjs/core';
 import {Observable} from 'rxjs';
 import {AUTH_META_DATA} from "./auth.decorator";
+import {AuthService} from "../services/auth.service";
+import {TokenService} from "../services/token.service";
 
 @Injectable()
 export class AuthInterceptor implements NestInterceptor {
 
-    constructor(private jwtService: JwtService, private reflector: Reflector) {}
+    constructor(
+        private jwtService: JwtService,
+        private reflector: Reflector,
+        private authService: AuthService,
+        private tokenService: TokenService
+    ) {
+    }
 
-    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
         const isAuthRequired = this.reflector.get<boolean>(AUTH_META_DATA, context.getHandler());
 
         if (!isAuthRequired) {
@@ -25,10 +33,11 @@ export class AuthInterceptor implements NestInterceptor {
 
         const token = authHeader.split(' ')[1];
 
-        try {
-            const payload = this.jwtService.verify(token);
-            request.user = payload; // Attach decoded user info to request
-        } catch (error) {
+        // Validate token
+        const isValid = await this.tokenService.validateToken(token);
+
+        // If token is invalid, throw an error
+        if (!isValid) {
             throw new UnauthorizedException('Invalid token');
         }
 
