@@ -41,9 +41,7 @@ export class AuthController {
 
     @Post('logout/:token')
     @ApiOperation({summary: 'Logout user'})
-    @ApiResponse({status: 200, description: 'User has been successfully logged out.'})
-    @ApiResponse({status: 400, description: 'Bad Request - Invalid token.'})
-    @ApiResponse({status: 401, description: 'Unauthorized - Invalid token.'})
+    @ApiResponse({status: 201, description: 'User has been successfully logged out.'})
     async logout(@Param('token') token: string) {
         return this.authService.logout(token);
     }

@@ -41,6 +41,12 @@ export class TokenService {
     }
 
     async saveToken(userId: number, token: string, expiresAt: Date): Promise<Token> {
+
+        const storeInCache = async (tk: string, uid: number, exp: Date) => {
+            const ttl: number = Math.floor((exp.getTime() - Date.now()) / 1000);
+            await this.cacheManager.set(`auth_token:${tk}`, uid, ttl);
+        };
+
         // Check if token already exists
         const existingToken = await this.db
             .select()
@@ -60,13 +66,6 @@ export class TokenService {
                 .where(eq(tokens.userId, userId))
                 .returning();
 
-
-            // Calculate TTL in seconds
-            const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
-
-            // Store in Redis for fast access
-            await this.cacheManager.set(`auth_token:${token}`, userId, ttl);
-
             return updatedToken;
         } else {
             // Create new token
@@ -81,11 +80,8 @@ export class TokenService {
                 .values(newToken)
                 .returning();
 
-            // Calculate TTL in seconds
-            const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
-
             // Store in Redis for fast access
-            await this.cacheManager.set(`auth_token:${token}`, userId, ttl);
+            await storeInCache(token, userId, expiresAt);
 
             return savedToken;
         }
