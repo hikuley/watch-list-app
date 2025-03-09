@@ -11,6 +11,7 @@ import {Cache} from "cache-manager";
 
 @Injectable()
 export class TokenService {
+
     constructor(
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase,
@@ -19,6 +20,11 @@ export class TokenService {
     ) {
     }
 
+    private auth_cash_key = 'auth_token';
+
+    private getCacheKey(token: string): string {
+        return `${this.auth_cash_key}:${token}`;
+    }
 
     async generateJWT(userId: number, userEmail: string): Promise<TokenDto> {
         const payload = {sub: userId, email: userEmail};
@@ -44,7 +50,7 @@ export class TokenService {
 
         const storeInCache = async (tk: string, uid: number, exp: Date) => {
             const ttl: number = Math.floor((exp.getTime() - Date.now()) / 1000);
-            await this.cacheManager.set(`auth_token:${tk}`, uid, ttl);
+            await this.cacheManager.set(this.getCacheKey(tk), uid, ttl);
         };
 
         // Check if token already exists
@@ -89,7 +95,7 @@ export class TokenService {
 
     async findByToken(token: string): Promise<Token | undefined> {
         // Check cache first
-        const cachedToken = await this.cacheManager.get<Token>(`auth_token:${token}`);
+        const cachedToken = await this.cacheManager.get<Token>(`${this.auth_cash_key}:${token}`);
         if (cachedToken) {
             return cachedToken;
         }
@@ -110,7 +116,7 @@ export class TokenService {
         // Store the result in cache
         if (foundToken) {
             const ttl = Math.floor((foundToken.expiresAt.getTime() - Date.now()) / 1000);
-            await this.cacheManager.set(`auth_token:${token}`, foundToken, ttl);
+            await this.cacheManager.set(this.getCacheKey(token), foundToken, ttl);
         }
 
         return foundToken;
@@ -137,7 +143,7 @@ export class TokenService {
             .where(eq(tokens.token, token));
 
         // Delete from cache
-        await this.cacheManager.del(`auth_token:${token}`);
+        await this.cacheManager.del(this.getCacheKey(token));
 
     }
 
@@ -166,7 +172,7 @@ export class TokenService {
             );
 
         for (const token of expiredTokens) {
-            await this.cacheManager.del(`auth_token:${token.token}`);
+            await this.cacheManager.del(this.getCacheKey(token.token));
         }
 
     }
@@ -192,7 +198,7 @@ export class TokenService {
         // Delete from cache
         const userTokens = await this.getUserTokens(userId);
         for (const token of userTokens) {
-            await this.cacheManager.del(`auth_token:${token.token}`);
+            await this.cacheManager.del(this.getCacheKey(token.token));
         }
     }
 }
