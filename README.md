@@ -36,3 +36,7 @@ cd server-ui && npm run dev
 ### Access Swagger UI
 The Swagger UI can be accessed at:
 - [http://localhost:3000/api](http://localhost:3000/api)
+
+The Swagger UI will look like this:
+
+![img.png](img.png)
