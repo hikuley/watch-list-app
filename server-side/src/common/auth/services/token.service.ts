@@ -49,7 +49,7 @@ export class TokenService {
             .limit(1);
 
         // Update token if it already exists
-        if (existingToken.length > 0) {
+        if (Array.isArray(existingToken) && existingToken[0]) {
             const [updatedToken] = await this.db
                 .update(tokens)
                 .set({
