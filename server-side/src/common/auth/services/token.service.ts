@@ -6,13 +6,16 @@ import {NewToken, Token, tokens} from "../../../config/database/schema";
 import {NodePgDatabase} from "drizzle-orm/node-postgres";
 import {TokenDto} from "../dto/token.dto";
 import {JwtService} from "@nestjs/jwt";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
+import {Cache} from "cache-manager";
 
 @Injectable()
 export class TokenService {
     constructor(
         @Inject('DB_INSTANCE')
         private db: NodePgDatabase,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {
     }
 
@@ -38,6 +41,7 @@ export class TokenService {
     }
 
     async saveToken(userId: number, token: string, expiresAt: Date): Promise<Token> {
+        // Check if token already exists
         const existingToken = await this.db
             .select()
             .from(tokens)
@@ -55,6 +59,14 @@ export class TokenService {
                 })
                 .where(eq(tokens.userId, userId))
                 .returning();
+
+
+            // Calculate TTL in seconds
+            const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+
+            // Store in Redis for fast access
+            await this.cacheManager.set(`auth_token:${token}`, userId, ttl);
+
             return updatedToken;
         } else {
             // Create new token
@@ -69,11 +81,24 @@ export class TokenService {
                 .values(newToken)
                 .returning();
 
+            // Calculate TTL in seconds
+            const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+
+            // Store in Redis for fast access
+            await this.cacheManager.set(`auth_token:${token}`, userId, ttl);
+
             return savedToken;
         }
     }
 
     async findByToken(token: string): Promise<Token | undefined> {
+        // Check cache first
+        const cachedToken = await this.cacheManager.get<Token>(`auth_token:${token}`);
+        if (cachedToken) {
+            return cachedToken;
+        }
+
+        // If not found in cache, query the database
         const [foundToken] = await this.db
             .select()
             .from(tokens)
@@ -85,6 +110,12 @@ export class TokenService {
                 )
             )
             .limit(1);
+
+        // Store the result in cache
+        if (foundToken) {
+            const ttl = Math.floor((foundToken.expiresAt.getTime() - Date.now()) / 1000);
+            await this.cacheManager.set(`auth_token:${token}`, foundToken, ttl);
+        }
 
         return foundToken;
     }
