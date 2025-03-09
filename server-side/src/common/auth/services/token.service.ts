@@ -139,6 +139,10 @@ export class TokenService {
             .update(tokens)
             .set({isValid: false})
             .where(eq(tokens.token, token));
+
+        // Delete from cache
+        await this.cacheManager.del(`auth_token:${token}`);
+
     }
 
     async cleanExpiredTokens(): Promise<void> {
@@ -153,6 +157,22 @@ export class TokenService {
                     lt(tokens.expiresAt, now)
                 )
             );
+
+        // Delete from cache
+        const expiredTokens = await this.db
+            .select()
+            .from(tokens)
+            .where(
+                and(
+                    eq(tokens.isValid, false),
+                    lt(tokens.expiresAt, now)
+                )
+            );
+
+        for (const token of expiredTokens) {
+            await this.cacheManager.del(`auth_token:${token.token}`);
+        }
+
     }
 
     async getUserTokens(userId: number): Promise<Token[]> {
@@ -172,5 +192,11 @@ export class TokenService {
             .update(tokens)
             .set({isValid: false})
             .where(eq(tokens.userId, userId));
+
+        // Delete from cache
+        const userTokens = await this.getUserTokens(userId);
+        for (const token of userTokens) {
+            await this.cacheManager.del(`auth_token:${token.token}`);
+        }
     }
 }

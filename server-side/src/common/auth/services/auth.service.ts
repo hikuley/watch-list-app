@@ -147,7 +147,7 @@ export class AuthService {
         await this.tokenService.invalidateToken(token);
     }
 
-    // Optional - call this periodically to clean up expired tokens
+    // Optional - call this periodically to clean up expired tokens maybe using a cron job
     async cleanupTokens(): Promise<void> {
         await this.tokenService.cleanExpiredTokens();
     }

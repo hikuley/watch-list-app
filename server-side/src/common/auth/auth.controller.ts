@@ -1,4 +1,4 @@
-import {Body, Controller, Post, ValidationPipe} from '@nestjs/common';
+import {Body, Controller, Param, Post, ValidationPipe} from '@nestjs/common';
 import {AuthService} from './services/auth.service';
 import {SignupDto} from './dto/signup.dto';
 import {VerifyEmailDto} from './dto/verify-email.dto';
@@ -38,5 +38,15 @@ export class AuthController {
     async login(@Body(new ValidationPipe()) loginDto: LoginDto): Promise<TokenDto> {
         return this.authService.login(loginDto);
     }
+
+    @Post('logout/:token')
+    @ApiOperation({summary: 'Logout user'})
+    @ApiResponse({status: 200, description: 'User has been successfully logged out.'})
+    @ApiResponse({status: 400, description: 'Bad Request - Invalid token.'})
+    @ApiResponse({status: 401, description: 'Unauthorized - Invalid token.'})
+    async logout(@Param('token') token: string) {
+        return this.authService.logout(token);
+    }
+
 
 }
