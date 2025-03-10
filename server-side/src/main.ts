@@ -3,19 +3,23 @@ import {AppModule} from './app.module';
 import {INestApplication, ValidationPipe} from "@nestjs/common";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {MicroserviceOptions, Transport} from "@nestjs/microservices";
-import {KAFKA_CONFIG} from "./config/kafka/kafka.config";
-
+import {ConfigService} from "@nestjs/config";
 
 
 async function configureKafkaConsumer(app: INestApplication<any>) {
+    const configService = app.get(ConfigService);
+
+    const kafkaBrokers = configService.getOrThrow<string>('KAFKA_BROKERS');
+    const groupId = configService.getOrThrow<string>('KAFKA_CONSUMER_GROUP_ID');
+
     app.connectMicroservice<MicroserviceOptions>({
         transport: Transport.KAFKA,
         options: {
             client: {
-                brokers: KAFKA_CONFIG.BROKERS,
+                brokers: kafkaBrokers.split(','),
             },
             consumer: {
-                groupId: KAFKA_CONFIG.CONSUMER_GROUP_ID,
+                groupId: groupId,
             },
         },
     });
@@ -47,6 +51,7 @@ async function configureSwaggerDoc(app: INestApplication<any>) {
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
     app.useGlobalPipes(new ValidationPipe());
     app.setGlobalPrefix('api');
 
