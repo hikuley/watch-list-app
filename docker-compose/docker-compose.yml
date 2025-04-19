@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Kafka service - using bitnami/kafka:latest as specified in kafka-docker.sh
+  kafka-broker:
+    image: bitnami/kafka:latest
+    container_name: kafka-broker
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka-data:/bitnami/kafka
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+  # Redis service - using redis:7 as specified in redis-docker.sh
+  redis-db:
+    image: redis:7
+    container_name: redis-db
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+      - ./redis-conf/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=securepassword
+
+  # PostgreSQL service - using postgres:15 as specified in postgres-docker.sh
+  postgres-db:
+    image: postgres:15
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=securepassword
+      - POSTGRES_DB=mydatabase
+
+volumes:
+  kafka-data:
+  redis-data:
+  postgres-data: 

@@ -4,6 +4,7 @@ import {KafkaProducer} from '../../common/message/kafka.producer';
 import KafkaConsumer from "../../common/message/kafka.consumer";
 import {EmailService} from "../../common/email/email.service";
 import {ConfigModule, ConfigService} from '@nestjs/config';
+import {KafkaAdminService} from './kafka-admin.service';
 
 @Module({
     imports: [
@@ -15,7 +16,7 @@ import {ConfigModule, ConfigService} from '@nestjs/config';
                     transport: Transport.KAFKA,
                     options: {
                         client: {
-                            brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') ?? ['locssalhost:9092'],
+                            brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') ?? ['localhost:9092'],
                         },
                         consumer: {
                             groupId: configService.get<string>('KAFKA_CONSUMER_GROUP_ID') ?? 'default-group',
@@ -29,8 +30,8 @@ import {ConfigModule, ConfigService} from '@nestjs/config';
             },
         ]),
     ],
-    providers: [KafkaProducer, EmailService],
-    exports: [KafkaProducer],
+    providers: [KafkaProducer, EmailService, KafkaAdminService],
+    exports: [KafkaProducer, KafkaAdminService],
     controllers: [KafkaConsumer],
 })
 export class KafkaModule {
