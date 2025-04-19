@@ -15,14 +15,14 @@ import {ConfigModule, ConfigService} from '@nestjs/config';
                     transport: Transport.KAFKA,
                     options: {
                         client: {
-                            brokers: configService.get<string>('KAFKA_BROKERS', 'localhost:9092').split(','),
+                            brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') ?? ['locssalhost:9092'],
                         },
                         consumer: {
-                            groupId: configService.get<string>('KAFKA_CONSUMER_GROUP_ID', 'my-consumer-group'),
+                            groupId: configService.get<string>('KAFKA_CONSUMER_GROUP_ID') ?? 'default-group',
                         },
                         producer: {
                             allowAutoTopicCreation: true,
-                        }
+                        },
                     },
                 }),
                 inject: [ConfigService],

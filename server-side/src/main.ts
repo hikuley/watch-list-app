@@ -4,6 +4,7 @@ import {INestApplication, ValidationPipe} from "@nestjs/common";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {MicroserviceOptions, Transport} from "@nestjs/microservices";
 import {ConfigService} from "@nestjs/config";
+import * as process from "process";
 
 
 async function configureKafkaConsumer(app: INestApplication<any>) {
@@ -65,4 +66,9 @@ async function bootstrap() {
     await app.listen(3000);
 }
 
+// log all of environment variables
+console.log('Environment variables:');
+for (const key in process.env) {
+    console.log(`${key}=${process.env[key]}`);
+}
 bootstrap().then(r => console.log('Server started!'));
