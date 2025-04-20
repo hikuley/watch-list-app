@@ -43,3 +43,17 @@ export const movies = pgTable('movies', {
 // Types for our movie entity
 export type Movie = typeof movies.$inferSelect;
 export type NewMovie = typeof movies.$inferInsert;
+
+// create a table for the commets by userId and movieId
+export const comments = pgTable('comments', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull(),
+    movieId: integer('movie_id').notNull(),
+    comment: text('comment').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Types for our comment entity
+export type Comment = typeof comments.$inferSelect;
+export type NewComment = typeof comments.$inferInsert;

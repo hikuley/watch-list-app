@@ -3,6 +3,7 @@ import {DatabaseModule} from './config/database/database.module';
 
 import {RedisCacheModule} from "./config/redis/redis.config";
 import {MoviesModule} from "./domain/movies/movies.module";
+import {CommentsModule} from "./domain/comments/comments.module";
 import {AuthModule} from "./common/auth/auth.module";
 import {KafkaModule} from "./config/kafka/kafka.module";
 import {EmailModule} from "./common/email/email.module";
@@ -23,6 +24,7 @@ import {JwtModule} from "@nestjs/jwt";
         EmailModule,
         KafkaModule,
         MoviesModule,
+        CommentsModule,
         AuthModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET || 'your-secret-key', // Use environment variables in production
