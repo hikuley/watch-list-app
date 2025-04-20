@@ -2,9 +2,24 @@
 
 This guide explains how Kafka topics are automatically created and managed in the application.
 
-## Automatic Topic Creation
+## Automatic Topic Synchronization
 
-Kafka topics defined in `src/common/message/kafka.topics.ts` are automatically created when the application starts. This is handled by the `KafkaAdminService` which implements `OnModuleInit` to ensure topics exist before the application needs them.
+Kafka topics defined in `src/common/message/kafka.topics.ts` are automatically synchronized when the application starts. This is handled by the `KafkaAdminService` which implements `OnModuleInit` to ensure topics are in sync before the application needs them.
+
+### Configuration
+
+You can configure the synchronization behavior using environment variables:
+
+- `KAFKA_AUTO_SYNC_TOPICS`: Enable/disable automatic topic synchronization (default: `true`)
+- `KAFKA_DELETE_REDUNDANT_ON_STARTUP`: Whether to delete redundant topics on startup (default: `false`)
+
+Example configuration in `.env` or `local.env`:
+```
+KAFKA_AUTO_SYNC_TOPICS=true
+KAFKA_DELETE_REDUNDANT_ON_STARTUP=false
+```
+
+### Synchronization Process
 
 The service performs the following steps:
 1. Connects to Kafka using the admin client
@@ -14,6 +29,9 @@ The service performs the following steps:
    - 1 partition
    - Replication factor of 1
    - 7-day retention period
+5. If `KAFKA_DELETE_REDUNDANT_ON_STARTUP` is `true`, it will also delete any topics in Kafka that are not defined in `KafkaTopics` (excluding system topics like `__consumer_offsets`)
+
+By default, the service only creates missing topics on startup (it doesn't delete redundant ones) to ensure safety in production environments.
 
 ## Topic Management Commands
 
@@ -92,7 +110,8 @@ To add a new topic:
 To remove a topic that's no longer needed:
 
 1. Remove it from the `KafkaTopics` object in `src/common/message/kafka.topics.ts`
-2. Run the sync command to remove it from Kafka:
+2. If `KAFKA_DELETE_REDUNDANT_ON_STARTUP` is set to `true`, the topic will be automatically deleted when the application restarts
+3. Alternatively, run the sync command to remove it from Kafka immediately:
    ```bash
    npm run sync:kafka-topics
    ```

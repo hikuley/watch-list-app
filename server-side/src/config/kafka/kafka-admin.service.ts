@@ -29,63 +29,36 @@ export class KafkaAdminService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      this.logger.log('Connecting to Kafka admin...');
-      await this.admin.connect();
-      this.logger.log('Connected to Kafka admin successfully');
+      this.logger.log('Initializing Kafka topics synchronization on application startup...');
       
-      // Get all topics from KafkaTopics
-      const topics = Object.values(KafkaTopics);
-      this.logger.log(`Available topics in KafkaTopics: ${topics.join(', ')}`);
+      // Check if auto-sync is enabled (default to true)
+      const enableAutoSync = this.configService.get<string>('KAFKA_AUTO_SYNC_TOPICS') !== 'false';
       
-      // Get existing topics
-      this.logger.log('Fetching existing topics from Kafka...');
-      const existingTopics = await this.admin.listTopics();
-      this.logger.log(`Existing topics in Kafka: ${existingTopics.join(', ') || 'none'}`);
-      
-      // Filter out topics that already exist
-      const topicsToCreate = topics.filter(topic => !existingTopics.includes(topic));
-      
-      if (topicsToCreate.length > 0) {
-        this.logger.log(`Creating ${topicsToCreate.length} Kafka topics: ${topicsToCreate.join(', ')}`);
+      if (enableAutoSync) {
+        // Get whether to delete redundant topics (default to false for safety on startup)
+        const deleteRedundantOnStartup = this.configService.get<string>('KAFKA_DELETE_REDUNDANT_ON_STARTUP') === 'true';
         
-        await this.admin.createTopics({
-          topics: topicsToCreate.map(topic => ({
-            topic,
-            numPartitions: 1,
-            replicationFactor: 1,
-            configEntries: [{ name: 'retention.ms', value: '604800000' }] // 7 days retention
-          })),
-          timeout: 10000, // 10 seconds timeout
-        });
-        
-        this.logger.log('Kafka topics created successfully');
-        
-        // Verify the topics were created
-        const updatedTopics = await this.admin.listTopics();
-        this.logger.log(`Updated topics in Kafka: ${updatedTopics.join(', ')}`);
-        
-        // Check if all topics were created
-        const missingTopics = topicsToCreate.filter(topic => !updatedTopics.includes(topic));
-        if (missingTopics.length > 0) {
-          this.logger.warn(`Some topics were not created: ${missingTopics.join(', ')}`);
+        if (deleteRedundantOnStartup) {
+          this.logger.log('Running full synchronization (create missing topics and delete redundant ones)');
         } else {
-          this.logger.log('All topics were created successfully');
+          this.logger.log('Running partial synchronization (only creating missing topics)');
+        }
+        
+        // Run synchronization with the appropriate delete flag
+        const result = await this.synchronizeTopics(deleteRedundantOnStartup);
+        
+        this.logger.log('Kafka topics synchronization on startup completed');
+        this.logger.log(`Created topics: ${result.created.length > 0 ? result.created.join(', ') : 'none'}`);
+        
+        if (deleteRedundantOnStartup) {
+          this.logger.log(`Deleted topics: ${result.deleted.length > 0 ? result.deleted.join(', ') : 'none'}`);
         }
       } else {
-        this.logger.log('All Kafka topics already exist');
+        this.logger.log('Automatic Kafka topic synchronization is disabled');
       }
     } catch (error) {
-      this.logger.error(`Failed to create Kafka topics: ${error.message}`, error.stack);
-      // Re-throw to allow the command to catch it
-      throw error;
-    } finally {
-      try {
-        this.logger.log('Disconnecting from Kafka admin...');
-        await this.admin.disconnect();
-        this.logger.log('Disconnected from Kafka admin successfully');
-      } catch (disconnectError) {
-        this.logger.error(`Error disconnecting from Kafka admin: ${disconnectError.message}`);
-      }
+      this.logger.error(`Failed to synchronize Kafka topics on startup: ${error.message}`, error.stack);
+      // We don't rethrow to prevent application startup failure due to Kafka issues
     }
   }
 
