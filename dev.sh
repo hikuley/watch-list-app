@@ -1,29 +1,31 @@
 #!/bin/bash
 
-# This script starts, stops, or purges all specified services (postgres, kafka, redis)
-# Usage: ./dev.sh [start|stop|purge]
-# Example: ./dev.sh start
+# Get the directory of the script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Change to the project root directory
+cd "$SCRIPT_DIR"
 
-# Check if exactly one argument is provided and if it is either 'start', 'stop', or 'purge'
-if [ "$#" -ne 1 ] || [[ ! "$1" =~ ^(start|stop|purge)$ ]]; then
-    echo "Usage: $0 [start|stop|purge]"
-    exit 1
+# if ./dev.sh start is called, start the services and run the nestjs server and react app
+if [ "$1" = "start" ]; then
+    # Start the Docker Compose stack if it's not already running
+    if ! docker-compose ps | grep -q "Up"; then
+        cd docker-compose && docker-compose up -d
+        # Return to project root
+        cd "$SCRIPT_DIR"
+    fi
 fi
 
-# Store the action (start, stop, or purge) in a variable
-action=$1
+# if ./dev.sh stop is called, stop the services and nestjs server and react app
+if [ "$1" = "stop" ]; then
+    # Just stop Docker Compose services, no need to run non-existent npm scripts
+    cd docker-compose && docker-compose down
+    # Return to project root
+    cd "$SCRIPT_DIR"
+    echo "All services should now be stopped"
+fi
 
-# Define an array of services to be managed
-services=("postgres" "kafka" "redis")
-
-# Inform the user about the action being performed
-echo "Performing $action for all services..."
-
-# Loop through each service and run the corresponding script with the action
-for service in "${services[@]}"; do
-    echo "Running $service-docker.sh $action"
-    ./dev-env-scripts/$service-docker.sh $action
-done
-
-# Run docker ps to show the status of all containers after the action
-docker ps
+# if ./dev.sh restart is called, stop the services and nestjs server and react app and start the services and nestjs server and react app
+if [ "$1" = "restart" ]; then
+    ./dev.sh stop
+    ./dev.sh start
+fi
