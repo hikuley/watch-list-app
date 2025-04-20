@@ -21,7 +21,9 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "database-integrate": "drizzle-kit push",
-    "create:kafka-topics": "ts-node src/commands/cli.ts create-kafka-topics"
+    "create:kafka-topics": "ts-node src/commands/cli.ts create-kafka-topics",
+    "sync:kafka-topics": "ts-node src/commands/cli.ts sync-kafka-topics",
+    "sync:kafka-topics:dry-run": "ts-node src/commands/cli.ts sync-kafka-topics --dry-run true"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.0",

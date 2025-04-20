@@ -15,9 +15,11 @@ The service performs the following steps:
    - Replication factor of 1
    - 7-day retention period
 
-## Manual Topic Creation
+## Topic Management Commands
 
-You can also manually create the topics using the provided CLI command:
+### Create Topics
+
+You can manually create the topics using the provided CLI command:
 
 ```bash
 # Run with npm script
@@ -31,6 +33,41 @@ This is useful for:
 - CI/CD pipelines
 - Ensuring topics exist before running tests
 - Creating topics in development environments
+
+### Synchronize Topics
+
+You can synchronize your Kafka topics with the `KafkaTopics` definition, which will:
+1. Create any missing topics defined in `KafkaTopics`
+2. Remove any redundant topics that exist in Kafka but are not defined in `KafkaTopics`
+
+```bash
+# Run with npm script
+npm run sync:kafka-topics
+
+# Or directly with ts-node
+ts-node src/commands/cli.ts sync-kafka-topics
+```
+
+#### Options
+
+The sync command supports several options:
+
+- `--dry-run`: Show what would be created or deleted without actually making changes
+  ```bash
+  npm run sync:kafka-topics:dry-run
+  # or
+  ts-node src/commands/cli.ts sync-kafka-topics --dry-run true
+  ```
+
+- `--skip-delete`: Only create missing topics, don't delete any redundant topics
+  ```bash
+  ts-node src/commands/cli.ts sync-kafka-topics --skip-delete true
+  ```
+
+You can combine options:
+```bash
+ts-node src/commands/cli.ts sync-kafka-topics --dry-run true --skip-delete true
+```
 
 ## Adding New Topics
 
@@ -49,6 +86,16 @@ To add a new topic:
    ```
 
 2. The topic will be automatically created the next time the application starts, or you can manually create it using the CLI command.
+
+## Removing Topics
+
+To remove a topic that's no longer needed:
+
+1. Remove it from the `KafkaTopics` object in `src/common/message/kafka.topics.ts`
+2. Run the sync command to remove it from Kafka:
+   ```bash
+   npm run sync:kafka-topics
+   ```
 
 ## Customizing Topic Configuration
 
