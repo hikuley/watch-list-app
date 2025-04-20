@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+# if ./dev.sh is called, show the help message
+if [ "$1" = "" ]; then
+    echo "Usage: ./dev.sh [start|stop|restart]"
+    exit 0
+fi
+
+
 # Get the directory of the script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Change to the project root directory
